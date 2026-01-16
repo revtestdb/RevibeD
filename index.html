@@ -151,7 +151,8 @@
     </div>
 
     <!-- Sidebar Filters -->
-    <aside class="w-64 glass h-full flex-shrink-0 flex flex-col p-4 border-r border-slate-700/50 relative z-20">
+    <aside
+        class="w-64 glass h-full flex-shrink-0 flex flex-col p-4 border-r border-slate-700/50 relative z-20 overflow-y-auto">
         <div class="mb-5 flex items-center gap-3">
             <img src="css/revibe.png" alt="Revibe Logo" class="w-12 h-12 rounded-full object-cover shadow-md">
             <div>
@@ -288,7 +289,7 @@
         </div>
 
         <!-- Section A: Executive KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
 
             <!-- Total Volume -->
             <div class="glass rounded-xl p-5 border-l-4 border-accent-purple relative overflow-hidden">
@@ -414,7 +415,7 @@
         </div>
 
         <!-- Section C.5: Deeper Issue Analysis -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
 
             <!-- Bot Issues -->
             <div class="glass rounded-xl p-5 border-l-4 border-gray-400 relative overflow-hidden">
@@ -558,7 +559,7 @@
                     </button>
                 </div>
             </div>
-            <div id="recommendationsGrid" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div id="recommendationsGrid" class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
                 <!-- Recommendations injected via JS -->
             </div>
         </div>
@@ -703,7 +704,7 @@
             'KSA_Whatsapp': '',
             'UAE_Whatsapp': '',
             'ZA_Whatsapp': '',
-            'Test_Sheet': ''
+            'Test_Sheet': 'https://opensheet.elk.sh/15Gkf8FDqrF1TSTB4SmQ4doaPu99Uv6giQi1Cc4TJhAY/sheet4'
         };
 
         // Global Data Storage
