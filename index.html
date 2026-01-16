@@ -153,7 +153,7 @@
     <!-- Sidebar Filters -->
     <aside class="w-64 glass h-full flex-shrink-0 flex flex-col p-4 border-r border-slate-700/50 relative z-20">
         <div class="mb-5 flex items-center gap-3">
-            <img src="../css/revibe.png" alt="Revibe Logo" class="w-12 h-12 rounded-full object-cover shadow-md">
+            <img src="css/revibe.png" alt="Revibe Logo" class="w-12 h-12 rounded-full object-cover shadow-md">
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tighter text-white leading-none">REVIBE</h1>
                 <p class="text-[10px] text-gray-400 tracking-widest uppercase font-semibold">CX Analytics</p>
@@ -245,7 +245,7 @@
         </div>
 
         <div class="mt-auto pt-4 border-t border-slate-700">
-            <button onclick="window.location.href='credentials.html'"
+            <button onclick="window.location.href='views/credentials.html'"
                 class="w-full flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors mb-1.5 py-1.5 rounded-lg hover:bg-slate-800 text-xs">
                 <i class="fa-solid fa-key"></i> Credentials Manager
             </button>
@@ -261,7 +261,7 @@
                 class="w-full flex items-center justify-center gap-2 text-accent-green hover:text-white transition-colors mb-1.5 py-1.5 rounded-lg hover:bg-slate-800 border border-slate-700 hover:border-accent-green/50 text-xs">
                 <i class="fa-solid fa-brain"></i> Ticket Intelligence
             </button>
-            <button onclick="window.location.href='automation_center.html'"
+            <button onclick="window.location.href='views/automation_center.html'"
                 class="w-full flex items-center justify-center gap-2 text-accent-red hover:text-white transition-colors mb-1.5 py-1.5 rounded-lg hover:bg-slate-800 border border-slate-700 hover:border-accent-red/50 text-xs">
                 <i class="fa-solid fa-robot"></i> Automation Center
             </button>
@@ -661,14 +661,14 @@
     </div>
 
     <!-- LOGIC SCRIPT -->
-    <script src="../js/ticket_intelligence.js"></script>
+    <script src="js/ticket_intelligence.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            loadModal('settingsModalContainer', '../modals/settingsModal.html');
-            loadModal('ticketIntelligenceModalContainer', '../modals/ticketIntelligenceModal.html');
-            loadModal('aiModalContainer', '../modals/aiModal.html');
-            loadModal('reportsArchiveModalContainer', '../modals/reportsArchiveModal.html');
-            loadModal('issueAnalysisModalContainer', '../modals/issueAnalysisModal.html');
+            loadModal('settingsModalContainer', 'modals/settingsModal.html');
+            loadModal('ticketIntelligenceModalContainer', 'modals/ticketIntelligenceModal.html');
+            loadModal('aiModalContainer', 'modals/aiModal.html');
+            loadModal('reportsArchiveModalContainer', 'modals/reportsArchiveModal.html');
+            loadModal('issueAnalysisModalContainer', 'modals/issueAnalysisModal.html');
         });
 
         function loadModal(targetId, url) {
