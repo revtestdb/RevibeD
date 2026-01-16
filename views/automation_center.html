@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Center - CX Dashboard</title>
+
+    <!-- Tech Stack -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Identity Services Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 800: '#1e293b', 900: '#0f172a' },
+                        accent: { blue: '#3b82f6', green: '#10b981', red: '#ef4444' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-gray-200 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-slate-700 p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-accent-blue rounded flex items-center justify-center text-white font-bold">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <h1 class="text-lg font-bold tracking-wide text-white">Automation Center</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="credentials.html" class="text-sm text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-key"></i> Credentials Manager
+            </a>
+            <a href="index.html" class="text-sm text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 max-w-4xl mx-auto w-full">
+
+        <!-- Login / Connection Panel -->
+        <div class="glass rounded-xl p-6 mb-8 border border-slate-700 shadow-xl">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-brands fa-google text-accent-blue"></i> Connection Setup
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Left: Inputs -->
+                <div class="space-y-4">
+                    <div id="loginSection">
+                        <button id="ac_loginBtn"
+                            class="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 rounded flex items-center justify-center gap-2 transition-all shadow-lg">
+                            <i class="fa-brands fa-google text-accent-blue"></i> Sign In & Authorize
+                        </button>
+                    </div>
+
+                    <div id="connectedSection" class="hidden">
+                        <div
+                            class="bg-accent-green/10 border border-accent-green/30 rounded p-3 flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 bg-accent-green rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">Connected Successfully</p>
+                                <p class="text-xs text-accent-green">Token Active</p>
+                            </div>
+                        </div>
+                        <button id="ac_logoutBtn"
+                            class="mt-3 text-xs text-gray-400 hover:text-white underline">Disconnect</button>
+                    </div>
+                </div>
+
+                <!-- Right: Debug Console -->
+                <div class="flex flex-col h-full">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-bold text-gray-400 uppercase">System Status Log</label>
+                        <span id="scriptStatus" class="text-[10px] text-gray-500">Checking libraries...</span>
+                    </div>
+                    <div id="ac_console"
+                        class="flex-1 bg-slate-950 border border-slate-700 rounded p-3 font-mono text-xs text-gray-400 overflow-y-auto h-48 md:h-auto">
+                        <div class="text-gray-600 italic">Waiting for user action...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Features / Sheets Operations -->
+        <div id="automationFeatures"
+            class="opacity-50 pointer-events-none grayscale transition-all duration-500 space-y-6">
+
+            <!-- Sheets Configuration Panel -->
+            <div class="glass rounded-xl p-6 border border-slate-700">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-table-cells text-accent-green"></i> Sheet Operations
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Config Inputs -->
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Spreadsheet URL</label>
+                            <input type="text" id="ac_sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..."
+                                class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">Sheet Name</label>
+                                <input type="text" id="ac_sheetName" value="Sheet1"
+                                    class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-1">Start Row</label>
+                                <input type="number" id="ac_startRow" value="2" min="1"
+                                    class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button id="ac_testConnectionBtn"
+                                class="bg-slate-700 hover:bg-slate-600 text-white py-2 rounded text-xs font-bold transition-colors"><i
+                                    class="fa-solid fa-plug"></i> Test</button>
+                            <button id="ac_fetchDataBtn"
+                                class="bg-accent-blue hover:bg-blue-600 text-white py-2 rounded text-xs font-bold transition-colors"><i
+                                    class="fa-solid fa-download"></i> Fetch</button>
+                            <button id="ac_sendDataAppendBtn"
+                                class="bg-accent-green hover:bg-green-600 text-white py-2 rounded text-xs font-bold transition-colors"><i
+                                    class="fa-solid fa-plus"></i> Append</button>
+                            <button id="ac_sendDataUpdateBtn"
+                                class="bg-accent-yellow hover:bg-yellow-500 text-black py-2 rounded text-xs font-bold transition-colors"><i
+                                    class="fa-solid fa-pen"></i> Update</button>
+                        </div>
+                    </div>
+
+                    <!-- Data Editor -->
+                    <div class="md:col-span-2 flex flex-col">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold text-gray-400">Data Payload (JSON)</label>
+                            <div class="flex gap-2">
+                                <button id="ac_viewJsonInTabBtn"
+                                    class="text-[10px] text-accent-green hover:text-white"><i
+                                        class="fa-solid fa-external-link-alt"></i> View Full JSON</button>
+                                <button id="ac_clearDataBtn" class="text-[10px] text-gray-400 hover:text-white"><i
+                                        class="fa-solid fa-eraser"></i> Clear</button>
+                                <button id="ac_formatJsonBtn" class="text-[10px] text-accent-blue hover:text-white"><i
+                                        class="fa-solid fa-code"></i> Format</button>
+                            </div>
+                        </div>
+                        <textarea id="ac_dataArea"
+                            class="flex-1 bg-slate-950 border border-slate-700 rounded p-3 text-xs font-mono text-green-400 outline-none resize-none h-48"
+                            placeholder='[{"Name": "John", "Status": "Active"}]'></textarea>
+                        <p class="text-[10px] text-gray-500 mt-1">Input for Append/Update. Output for Fetch.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduler Panel -->
+            <div class="glass rounded-xl p-6 border border-slate-700">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-accent-yellow"></i> Auto-Fetch Scheduler
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Frequency</label>
+                        <select id="ac_schedFrequency"
+                            class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-yellow outline-none">
+                            <option value="hourly">Every Hour</option>
+                            <option value="daily">Daily</option>
+                        </select>
+                    </div>
+                    <div id="ac_schedTimeContainer" class="hidden">
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Time (24h)</label>
+                        <input type="time" id="ac_schedTime"
+                            class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-yellow outline-none">
+                    </div>
+                    <div>
+                        <button id="ac_schedStartBtn"
+                            class="w-full bg-accent-yellow hover:bg-yellow-500 text-black font-bold py-2 rounded text-xs transition-colors shadow-lg">
+                            <i class="fa-solid fa-play"></i> Start Schedule
+                        </button>
+                        <button id="ac_schedStopBtn"
+                            class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded text-xs transition-colors hidden">
+                            <i class="fa-solid fa-stop"></i> Stop
+                        </button>
+                    </div>
+                    <div class="md:col-span-1">
+                        <p id="ac_schedStatus" class="text-xs text-gray-500">Status: <span
+                                class="text-gray-400">Idle</span></p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Note: The
+                    scheduler only runs while this browser tab is open.</p>
+            </div>
+
+            <!-- Workflow Creator Panel -->
+            <div class="glass rounded-xl p-6 border border-slate-700">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-cogs text-accent-blue"></i> Workflow Creator
+                </h3>
+                <div id="workflow_steps" class="space-y-4">
+                    <!-- Workflow steps will be added here -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button id="addWorkflowStepBtn"
+                        class="bg-accent-blue hover:bg-blue-600 text-white py-2 px-4 rounded text-xs font-bold transition-colors shadow-lg"><i
+                            class="fa-solid fa-plus"></i> Add Step</button>
+                    <button id="runWorkflowBtn"
+                        class="bg-accent-green hover:bg-green-600 text-white py-2 px-4 rounded text-xs font-bold transition-colors shadow-lg"><i
+                            class="fa-solid fa-play"></i> Run Workflow</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../js/automation_center.js"></script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        let workflowStepCount = 0;
+
+        function addWorkflowStep() {
+            workflowStepCount++;
+            const stepsContainer = document.getElementById('workflow_steps');
+            const stepId = `wf_step_${workflowStepCount}`;
+
+            const stepHtml = `
+                <div id="${stepId}" class="bg-slate-800/50 p-4 rounded-lg border border-slate-600">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold text-gray-400">STEP ${workflowStepCount}</span>
+                            <select data-action="changeStepType" class="bg-slate-900 border border-slate-600 rounded p-1 text-xs text-white focus:border-accent-blue outline-none">
+                                <option value="">Select Action</option>
+                                <option value="fetch">Fetch Sheet Data</option>
+                                <option value="gemini_analyze">Analyze with Gemini</option>
+                                <option value="append">Append to Sheet</option>
+                            </select>
+                        </div>
+                        <button data-action="removeWorkflowStep" class="text-gray-500 hover:text-accent-red text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="step-config space-y-2">
+                        <!-- Config fields will be injected here -->
+                    </div>
+                </div>
+            `;
+            stepsContainer.insertAdjacentHTML('beforeend', stepHtml);
+        }
+
+        function changeStepType(selectElement) {
+            const stepElement = selectElement.closest('.bg-slate-800\/50');
+            const stepType = selectElement.value;
+            const configContainer = stepElement.querySelector('.step-config');
+            configContainer.innerHTML = ''; // Clear previous config
+
+            if (stepType === 'fetch') {
+                configContainer.innerHTML = `
+                    <p class="text-xs text-gray-400">Fetches data from the 'Sheet Operations' panel configuration above.</p>
+                `;
+            } else if (stepType === 'gemini_analyze') {
+                configContainer.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Columns to Analyze (comma-separated)</label>
+                        <input type="text" placeholder="e.g., 'column_name1', 'column_name2'" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-yellow outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Analysis Prompt</label>
+                        <textarea placeholder="e.g., 'Summarize the sentiment of the following text...'" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white h-20 focus:border-accent-yellow outline-none"></textarea>
+                    </div>
+                `;
+            } else if (stepType === 'append') {
+                configContainer.innerHTML = `
+                    <p class="text-xs text-gray-400">Appends the result of the previous step to the sheet configured in the 'Sheet Operations' panel.</p>
+                `;
+            }
+        }
+
+        function removeWorkflowStep(buttonElement) {
+            const stepElement = buttonElement.closest('.bg-slate-800\/50');
+            if (stepElement) {
+                stepElement.remove();
+            }
+        }
+
+        async function runWorkflow() {
+            ac_log("Starting workflow...", "success");
+            const steps = document.querySelectorAll('#workflow_steps > div');
+            let previousStepResult = null;
+
+            for (const step of steps) {
+                const stepType = step.querySelector('select').value;
+                ac_log(`Executing step: ${stepType}`);
+
+                if (stepType === 'fetch') {
+                    previousStepResult = await ac_fetchData();
+                    if (previousStepResult) {
+                        ac_log(`Fetched ${previousStepResult.length} rows.`);
+                    } else {
+                        ac_log(`Fetch returned no data.`, "error");
+                        return;
+                    }
+                } else if (stepType === 'gemini_analyze') {
+                    if (!previousStepResult || previousStepResult.length < 2) { // Expect at least a header and one data row
+                        ac_log("Cannot analyze: Not enough data from previous step.", "error");
+                        return;
+                    }
+                    const apiKey = localStorage.getItem('gemini_api_key');
+                    if (!apiKey) {
+                        ac_log("Gemini API key not found. Please set it in the Credentials Manager.", "error");
+                        return;
+                    }
+
+                    const columnsToAnalyze = step.querySelector('input[type="text"]').value.split(',').map(s => s.trim());
+                    const prompt = step.querySelector('textarea').value;
+
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+                    ac_log(`Analyzing ${previousStepResult.length - 1} data rows in parallel using Gemini...`, "info");
+
+                    const header = previousStepResult[0];
+                    const dataRows = previousStepResult.slice(1);
+
+                    const columnIndices = columnsToAnalyze.map(colName => header.indexOf(colName));
+                    const invalidColumns = columnsToAnalyze.filter((_, index) => columnIndices[index] === -1);
+
+                    if (invalidColumns.length > 0) {
+                        ac_log(`Error: The following columns were not found in the sheet: ${invalidColumns.join(', ')}`, 'error');
+                        return;
+                    }
+
+                    const analysisPromises = dataRows.map(async (row) => {
+                        const textToAnalyze = columnIndices.map(index => row[index] || '').join(' ');
+
+                        const fullPrompt = `${prompt}\n\n${textToAnalyze}`;
+
+                        async function callGeminiWithRetry(fullPrompt) {
+                            let attempts = 0;
+                            let success = false;
+                            const maxAttempts = 3;
+
+                            while (attempts < maxAttempts && !success) {
+                                attempts++;
+                                try {
+                                    const result = await model.generateContent(fullPrompt);
+                                    const response = await result.response;
+                                    const text = response.text();
+                                    success = true;
+                                    return [...row, text];
+                                } catch (error) {
+                                    if (attempts >= maxAttempts) {
+                                        ac_log(`Gemini API Error for a row: ${error.message}`, "error");
+                                        return [...row, "ANALYSIS_FAILED"]; // Keep original row data and add error marker
+                                    }
+                                    ac_log(`Gemini API call failed (Attempt ${attempts}). Retrying in ${attempts * 2}s...`);
+                                    await new Promise(resolve => setTimeout(resolve, attempts * 2000));
+                                }
+                            }
+                        }
+
+                        return callGeminiWithRetry(fullPrompt);
+                    });
+
+                    const analyzedRows = await Promise.all(analysisPromises);
+                    previousStepResult = [header, ...analyzedRows]; // Add header back to the result
+
+                    ac_log(`Analysis complete. Processed ${analyzedRows.length} rows.`);
+
+                } else if (stepType === 'append') {
+                    if (!previousStepResult) {
+                        ac_log("Cannot append: No data from previous step.", "error");
+                        return;
+                    }
+                    // Temporarily set the data area with the result to be appended
+                    ac_latestData = previousStepResult; // Update ac_latestData so ac_sendData can use it
+                    document.getElementById('ac_dataArea').value = JSON.stringify(previousStepResult);
+                    await ac_sendData('append');
+                    ac_log("Appended data to sheet.", "success");
+                }
+            }
+            ac_log("Workflow finished.", "success");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const last30 = new Date();
+            last30.setDate(today.getDate() - 30);
+
+            const endDateInput = document.getElementById('alhena_endDate');
+            const startDateInput = document.getElementById('alhena_startDate');
+
+            if (endDateInput) endDateInput.valueAsDate = today;
+            if (startDateInput) startDateInput.valueAsDate = last30;
+            document.getElementById('addWorkflowStepBtn').addEventListener('click', addWorkflowStep);
+            document.getElementById('runWorkflowBtn').addEventListener('click', runWorkflow);
+
+            const workflowStepsContainer = document.getElementById('workflow_steps');
+            workflowStepsContainer.addEventListener('click', (e) => {
+                if (e.target.closest('[data-action="removeWorkflowStep"]')) {
+                    removeWorkflowStep(e.target.closest('[data-action="removeWorkflowStep"]'));
+                }
+            });
+
+            workflowStepsContainer.addEventListener('change', (e) => {
+                if (e.target.matches('[data-action="changeStepType"]')) {
+                    changeStepType(e.target);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

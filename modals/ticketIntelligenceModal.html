@@ -1,0 +1,145 @@
+<!-- Ticket Intelligence Modal -->
+<div id="ticketIntelligenceModal"
+    class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[80] hidden flex items-center justify-center">
+    <div class="glass p-6 rounded-xl w-full max-w-5xl border border-slate-700 shadow-2xl h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-brain text-accent-green"></i> Ticket Intelligence Analyzer
+            </h3>
+            <button onclick="closeTicketIntelligenceModal()"
+                class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-2 space-y-6">
+
+            <!-- Configuration Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- API Key & Model -->
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600 space-y-4">
+                    <h4 class="text-sm font-bold text-gray-300 uppercase">Configuration</h4>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Gemini API Key</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="ti_apiKey" placeholder="Enter API Key"
+                                class="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                            <button id="ti_saveKeyBtn"
+                                class="bg-accent-green hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-bold">Save</button>
+                        </div>
+                        <p class="text-[10px] text-gray-500 mt-1">Key is shared with AI Analyst feature.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Model</label>
+                        <select id="ti_model"
+                            class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                            <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash</option>                        </select>
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600 space-y-4">
+                    <h4 class="text-sm font-bold text-gray-300 uppercase">Data Source</h4>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Upload Tickets (JSON/CSV)</label>
+                        <input type="file" id="ti_fileInput" accept=".json,.csv"
+                            class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-accent-green file:text-white hover:file:bg-green-600">
+                    </div>
+                    <button id="ti_analyzeBtn"
+                        class="w-full bg-gradient-to-r from-accent-green to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold py-2 rounded shadow-lg transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Start Analysis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress & Controls -->
+            <div id="ti_progressSection" class="hidden space-y-2">
+                <div class="flex justify-between items-center">
+                    <span id="ti_status" class="text-xs text-accent-green font-mono">Initializing...</span>
+                    <div class="flex gap-2">
+                        <button id="ti_pauseBtn"
+                            class="text-xs bg-accent-yellow text-black px-3 py-1 rounded font-bold hover:bg-yellow-400">Pause</button>
+                        <button id="ti_resumeBtn"
+                            class="text-xs bg-accent-purple text-white px-3 py-1 rounded font-bold hover:bg-purple-600 hidden">Resume</button>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5">
+                    <div id="ti_progressBar" class="bg-accent-green h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Results Area -->
+            <div id="ti_resultContainer" class="hidden space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                    <h4 class="text-sm font-bold text-white">Analysis Results</h4>
+                    <div class="flex gap-2">
+                        <select id="ti_outputFormat"
+                            class="bg-slate-900 border border-slate-600 rounded p-1 text-xs text-white">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                        <button id="ti_copyBtn"
+                            class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded"><i
+                                class="fa-solid fa-copy"></i> Copy</button>
+                        <button id="ti_downloadBtn"
+                            class="text-xs bg-accent-green hover:bg-green-600 text-white px-3 py-1 rounded"><i
+                                class="fa-solid fa-download"></i> Download</button>
+                    </div>
+                </div>
+                <pre id="ti_output"
+                    class="w-full h-64 bg-slate-950 border border-slate-700 rounded p-4 text-xs font-mono text-green-400 overflow-auto"></pre>
+            </div>
+
+            <!-- Google Sheets Export Section -->
+            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600">
+                <h4 class="text-sm font-bold text-gray-300 uppercase mb-3">Export Results to Google Sheets</h4>
+
+                <!-- Method 1: Apps Script -->
+                <div class="mb-4 border-b border-slate-700 pb-4">
+                    <label class="block text-xs font-bold text-gray-400 mb-1">Method 1: Apps Script Web App
+                        URL</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="ti_sheetUrl" placeholder="Paste Web App URL"
+                            class="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-blue outline-none">
+                        <button id="ti_saveSheetUrlBtn"
+                            class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs">Save
+                            URL</button>
+                    </div>
+                    <button id="ti_sendToSheetBtn"
+                        class="mt-2 w-full bg-accent-blue hover:bg-blue-600 text-white py-2 rounded text-xs font-bold transition-colors">
+                        <i class="fa-solid fa-paper-plane"></i> Send Data (Apps Script)
+                    </button>
+                </div>
+
+                <!-- Method 2: Direct API -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1">Method 2: Direct API (OAuth
+                        2.0)</label>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <input type="text" id="ti_googleClientId" placeholder="Client ID"
+                            class="bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                        <input type="text" id="ti_spreadsheetId" placeholder="Spreadsheet ID"
+                            class="bg-slate-900 border border-slate-600 rounded p-2 text-xs text-white focus:border-accent-green outline-none">
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="ti_googleAuthBtn"
+                            class="flex-1 bg-white text-gray-900 hover:bg-gray-100 py-2 rounded text-xs font-bold transition-colors"><i
+                                class="fa-brands fa-google"></i> Sign In</button>
+                        <button id="ti_sendToSheetApiBtn"
+                            class="flex-1 bg-accent-green hover:bg-green-600 text-white py-2 rounded text-xs font-bold transition-colors"
+                            disabled>Send (Direct API)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs -->
+            <div>
+                <h4 class="text-xs font-bold text-gray-400 mb-2">Activity Log</h4>
+                <textarea id="ti_activityLog" readonly
+                    class="w-full h-24 bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 font-mono"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

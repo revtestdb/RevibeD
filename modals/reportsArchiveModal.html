@@ -1,0 +1,40 @@
+<!-- Reports Archive Modal -->
+<div id="reportsArchiveModal"
+    class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[80] hidden flex items-center justify-center">
+    <div class="glass p-6 rounded-xl w-full max-w-7xl border border-slate-700 shadow-2xl h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-archive text-accent-blue"></i> Gemini Reports Archive
+            </h3>
+            <button onclick="closeReportsArchive()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="flex-1 grid grid-cols-3 gap-6 overflow-hidden">
+            <!-- Left Column: Timeline -->
+            <div class="col-span-1 bg-slate-900/50 rounded-lg p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                    <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                        <input type="checkbox" id="selectAllReports" onchange="toggleSelectAllReports(this)"
+                            class="rounded bg-slate-800 border-slate-600 focus:ring-accent-blue">
+                        Select All
+                    </label>
+                    <button onclick="downloadSelectedReports()"
+                        class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded transition-colors border border-slate-600">
+                        <i class="fa-solid fa-download mr-1"></i> Download
+                    </button>
+                </div>
+                <div id="reportsList" class="flex-1 overflow-y-auto space-y-2">
+                    <p class="text-gray-500 text-sm italic">No reports saved yet.</p>
+                </div>
+            </div>
+            <!-- Right Column: Report Detail -->
+            <div id="reportDetailView" class="col-span-2 bg-slate-800/50 rounded-lg p-6 overflow-y-auto">
+                <div class="flex flex-col items-center justify-center h-full text-gray-500">
+                    <i class="fa-regular fa-file-lines text-4xl mb-4 opacity-50"></i>
+                    <p>Select a report from the list to view its details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
