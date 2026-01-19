@@ -875,6 +875,7 @@
                         database[key] = {
                             data: row.data || [],
                             updated: row.updated || 'Never',
+                            updatedTs: row.updatedTs || 0,
                             url: (savedUrl && savedUrl.trim() !== '') ? savedUrl : defaultUrl
                         };
                     }
