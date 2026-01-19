@@ -723,6 +723,28 @@
         // Database State (Initialized empty, populated on load)
         let database = {};
 
+        // Helper to update the global "Last Sync" text
+        function updateLastSyncDisplay() {
+            let latest = 'Never';
+            let maxTime = 0;
+
+            Object.values(database).forEach(entry => {
+                let t = 0;
+                if (entry.updatedTs) {
+                    t = entry.updatedTs;
+                } else if (entry.updated && entry.updated !== 'Never') {
+                    t = new Date(entry.updated).getTime();
+                }
+
+                if (!isNaN(t) && t > maxTime) {
+                    maxTime = t;
+                    latest = entry.updated;
+                }
+            });
+
+            document.getElementById('lastSyncText').innerText = `Last Sync: ${latest}`;
+        }
+
         // Helper to handle inconsistent column names (case/whitespace/underscores)
         function getValueFuzzy(row, colName) {
             if (!row || !colName) return undefined;
@@ -878,19 +900,7 @@
                 document.getElementById('startDate').valueAsDate = last30;
             }
 
-            // Update Last Sync Text based on most recent DB update
-            let latest = 'Never';
-            let maxTime = 0;
-            Object.values(database).forEach(entry => {
-                if (entry.updated && entry.updated !== 'Never') {
-                    const t = new Date(entry.updated).getTime();
-                    if (!isNaN(t) && t > maxTime) {
-                        maxTime = t;
-                        latest = entry.updated;
-                    }
-                }
-            });
-            document.getElementById('lastSyncText').innerText = `Last Sync: ${latest}`;
+            updateLastSyncDisplay();
 
             // Initial Load
             applyFilters();
@@ -1112,7 +1122,9 @@
 
         async function saveToDatabase(region, data, hideLoader = true) {
             database[region].data = data;
-            database[region].updated = new Date().toLocaleString();
+            const now = new Date();
+            database[region].updated = now.toLocaleString();
+            database[region].updatedTs = now.getTime();
 
             try {
                 await dbSaveRegion(region, database[region]);
@@ -1136,6 +1148,8 @@
             if (!document.getElementById('settingsModal').classList.contains('hidden')) {
                 renderSettingsRows();
             }
+
+            updateLastSyncDisplay();
 
             if (hideLoader) {
                 document.getElementById('loader').classList.add('hidden');
