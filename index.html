@@ -428,6 +428,7 @@
                         <i class="fa-solid fa-robot"></i>
                     </div>
                 </div>
+                <div id="listBotIssues"></div>
                 <div class="flex gap-2 mt-4">
                     <button onclick="openCategoryAnalysis('Bot category', 'Bot suggestions', 'Bot Issues')"
                         class="flex-1 bg-gray-600 hover:bg-gray-500 text-white py-2 rounded text-xs font-bold transition-colors shadow-lg">
@@ -447,6 +448,7 @@
                         <i class="fa-solid fa-desktop"></i>
                     </div>
                 </div>
+                <div id="listWebsiteIssues"></div>
                 <div class="flex gap-2 mt-4">
                     <button
                         onclick="openCategoryAnalysis('website issue category', 'website issue description', 'Website Issues')"
@@ -467,6 +469,7 @@
                         <i class="fa-solid fa-cart-arrow-down"></i>
                     </div>
                 </div>
+                <div id="listReasonNotBuying"></div>
                 <div class="flex gap-2 mt-4">
                     <button
                         onclick="openCategoryAnalysis('reason_not_buying_category', 'reason_not_buying_description', 'Reason Not Buying')"
@@ -487,6 +490,7 @@
                         <i class="fa-solid fa-face-angry"></i>
                     </div>
                 </div>
+                <div id="listAngryReason"></div>
                 <div class="flex gap-2 mt-4">
                     <button onclick="openCategoryAnalysis('anger_category', 'angry_reason', 'Angry Customers')"
                         class="flex-1 bg-accent-purple hover:bg-purple-600 text-white py-2 rounded text-xs font-bold transition-colors shadow-lg">
@@ -506,6 +510,7 @@
                         <i class="fa-solid fa-mobile-screen-button"></i>
                     </div>
                 </div>
+                <div id="listDeviceQuality"></div>
                 <div class="flex gap-2 mt-4">
                     <button
                         onclick="openCategoryAnalysis('device_quality_category', 'device_quality_description', 'Device Quality')"
@@ -526,8 +531,9 @@
                         <i class="fa-solid fa-tags"></i>
                     </div>
                 </div>
+                <div id="listPricingTopic"></div>
                 <div class="flex gap-2 mt-4">
-                    <button onclick="openCategoryAnalysis('pricing_category', 'pricing_discription', 'Pricing Issues')"
+                    <button onclick="openCategoryAnalysis('pricing_category', 'pricing_description', 'Pricing Issues')"
                         class="flex-1 bg-accent-blue hover:bg-blue-600 text-white py-2 rounded text-xs font-bold transition-colors shadow-lg">
                         More Details
                     </button>
@@ -716,6 +722,19 @@
 
         // Database State (Initialized empty, populated on load)
         let database = {};
+
+        // Helper to handle inconsistent column names (case/whitespace/underscores)
+        function getValueFuzzy(row, colName) {
+            if (!row || !colName) return undefined;
+            if (row[colName] !== undefined) return row[colName];
+
+            // Remove non-alphanumeric characters for loose matching
+            const clean = str => str.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+            const target = clean(colName);
+
+            const foundKey = Object.keys(row).find(k => clean(k) === target);
+            return foundKey ? row[foundKey] : undefined;
+        }
 
         // ==========================================
         // 🗄️ INDEXED DB (Storage Fix)
@@ -1369,12 +1388,12 @@
             // 6. Deeper Issue Analysis KPIs
             const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '';
 
-            const botIssueCount = data.filter(r => isValid(r['Bot category'])).length;
-            const websiteIssueCount = data.filter(r => isValid(r['website issue category'])).length;
-            const reasonNotBuyingCount = data.filter(r => isValid(r['reason_not_buying_category'])).length;
-            const angryReasonCount = data.filter(r => isValid(r['anger_category'])).length;
-            const deviceQualityCount = data.filter(r => isValid(r['device_quality_category'])).length;
-            const pricingTopicCount = data.filter(r => isValid(r['pricing_category'])).length;
+            const botIssueCount = data.filter(r => isValid(getValueFuzzy(r, 'Bot category'))).length;
+            const websiteIssueCount = data.filter(r => isValid(getValueFuzzy(r, 'website issue category'))).length;
+            const reasonNotBuyingCount = data.filter(r => isValid(getValueFuzzy(r, 'reason_not_buying_category'))).length;
+            const angryReasonCount = data.filter(r => isValid(getValueFuzzy(r, 'anger_category'))).length;
+            const deviceQualityCount = data.filter(r => isValid(getValueFuzzy(r, 'device_quality_category'))).length;
+            const pricingTopicCount = data.filter(r => isValid(getValueFuzzy(r, 'pricing_category'))).length;
 
             const formatKpi = (count) => {
                 const pct = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
@@ -1387,6 +1406,14 @@
             document.getElementById('kpiAngryReason').innerHTML = formatKpi(angryReasonCount);
             document.getElementById('kpiDeviceQuality').innerHTML = formatKpi(deviceQualityCount);
             document.getElementById('kpiPricingTopic').innerHTML = formatKpi(pricingTopicCount);
+
+            // Update Top 4 Lists in Cards
+            updateCardTopCategories(data, 'Bot category', 'listBotIssues', 'bg-gray-400');
+            updateCardTopCategories(data, 'website issue category', 'listWebsiteIssues', 'bg-accent-yellow');
+            updateCardTopCategories(data, 'reason_not_buying_category', 'listReasonNotBuying', 'bg-accent-red');
+            updateCardTopCategories(data, 'anger_category', 'listAngryReason', 'bg-accent-purple');
+            updateCardTopCategories(data, 'device_quality_category', 'listDeviceQuality', 'bg-accent-green');
+            updateCardTopCategories(data, 'pricing_category', 'listPricingTopic', 'bg-accent-blue');
         }
 
         function updateCharts(data) {
@@ -1522,12 +1549,12 @@
             // Recalculate counts for chart consistency
             const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '';
             const issueCounts = [
-                data.filter(r => isValid(r['Bot category'])).length,
-                data.filter(r => isValid(r['website issue category'])).length,
-                data.filter(r => isValid(r['reason_not_buying_category'])).length,
-                data.filter(r => isValid(r['anger_category'])).length,
-                data.filter(r => isValid(r['device_quality_category'])).length,
-                data.filter(r => isValid(r['pricing_category'])).length
+                data.filter(r => isValid(getValueFuzzy(r, 'Bot category'))).length,
+                data.filter(r => isValid(getValueFuzzy(r, 'website issue category'))).length,
+                data.filter(r => isValid(getValueFuzzy(r, 'reason_not_buying_category'))).length,
+                data.filter(r => isValid(getValueFuzzy(r, 'anger_category'))).length,
+                data.filter(r => isValid(getValueFuzzy(r, 'device_quality_category'))).length,
+                data.filter(r => isValid(getValueFuzzy(r, 'pricing_category'))).length
             ];
 
             const ctx5 = document.getElementById('issuesLandscapeChart').getContext('2d');
@@ -1564,6 +1591,42 @@
                     }
                 }
             });
+        }
+
+        function updateCardTopCategories(data, column, elementId, colorClass) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+
+            const counts = {};
+            let total = 0;
+
+            data.forEach(r => {
+                const val = getValueFuzzy(r, column);
+                if (val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '') {
+                    counts[val] = (counts[val] || 0) + 1;
+                    total++;
+                }
+            });
+
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+            let html = '<div class="space-y-2 mt-3">';
+            sorted.forEach(([key, count]) => {
+                const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
+                html += `
+                    <div>
+                        <div class="flex justify-between items-center text-[10px] mb-0.5">
+                            <span class="text-gray-300 truncate pr-2" title="${key}">${key}</span>
+                            <span class="text-gray-400 font-mono">${pct}%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                            <div class="${colorClass} h-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = sorted.length > 0 ? html : '';
         }
 
         function updateMiniKPIChart(canvasId, count, total, color) {
@@ -2386,6 +2449,16 @@
         let currentTicketPage = 0;
         const TICKETS_PER_PAGE = 10;
 
+        // Helper to handle inconsistent column names (case/whitespace)
+        function getValueFuzzy(row, colName) {
+            if (!row || !colName) return undefined;
+            if (row[colName] !== undefined) return row[colName];
+
+            const lower = colName.trim().toLowerCase();
+            const foundKey = Object.keys(row).find(k => k.trim().toLowerCase() === lower);
+            return foundKey ? row[foundKey] : undefined;
+        }
+
         function openCategoryAnalysis(catCol, descCol, title) {
             activeCategoryColumn = catCol;
             activeDescriptionColumn = descCol;
@@ -2398,7 +2471,7 @@
             const counts = {};
             let total = 0;
             filteredData.forEach(r => {
-                const c = r[catCol];
+                const c = getValueFuzzy(r, catCol);
                 if (c && c.toLowerCase() !== 'na' && c.trim() !== '') {
                     counts[c] = (counts[c] || 0) + 1;
                     total++;
@@ -2442,7 +2515,7 @@
 
         function showCategoryTickets(category) {
             // Filter rows
-            activeCategoryRows = filteredData.filter(r => r[activeCategoryColumn] === category);
+            activeCategoryRows = filteredData.filter(r => getValueFuzzy(r, activeCategoryColumn) === category);
             currentTicketPage = 0;
 
             document.getElementById('catModalSubtitle').innerText = category;
@@ -2487,7 +2560,7 @@
             }
 
             slice.forEach(row => {
-                const desc = row[activeDescriptionColumn] || 'No description available';
+                const desc = getValueFuzzy(row, activeDescriptionColumn) || 'No description available';
                 const id = row['ticket_id'] || row['Ticket ID'] || '#';
 
                 // Check for transcript
@@ -2544,7 +2617,7 @@
             // Gather descriptions (limit to top 50 to avoid token limits)
             const descriptions = activeCategoryRows
                 .slice(0, 50)
-                .map(r => r[activeDescriptionColumn])
+                .map(r => getValueFuzzy(r, activeDescriptionColumn))
                 .filter(d => d && d.trim().length > 0)
                 .map(d => `- ${d}`)
                 .join('\n');
