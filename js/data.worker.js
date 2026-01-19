@@ -1,5 +1,5 @@
 // js/data.worker.js
-self.onmessage = function(e) {
+self.onmessage = function (e) {
     const { rawData, filterParams, database } = e.data;
     const { countryVal, sourceVal, startVal, endVal, isCompare, isCsatOnly, isTestMode } = filterParams;
 
@@ -103,7 +103,7 @@ self.onmessage = function(e) {
         ? ((csatScores.length / total) * 100).toFixed(1) + '%'
         : '0%';
 
-    const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '';
+    const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'null' && val.toLowerCase() !== 'false' && val.trim() !== '';
 
     const botIssueCount = filteredData.filter(r => isValid(r['Bot category'])).length;
     const websiteIssueCount = filteredData.filter(r => isValid(r['website issue category'])).length;

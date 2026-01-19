@@ -1401,7 +1401,7 @@
             document.getElementById('csatResponseRate').innerText = `Response Rate: ${responseRate}`;
 
             // 6. Deeper Issue Analysis KPIs
-            const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '';
+            const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'null' && val.toLowerCase() !== 'false' && val.trim() !== '';
 
             const botIssueCount = data.filter(r => isValid(getValueFuzzy(r, 'Bot category'))).length;
             const websiteIssueCount = data.filter(r => isValid(getValueFuzzy(r, 'website issue category'))).length;
@@ -1562,7 +1562,7 @@
 
             // 5. Issues Landscape (Polar Area)
             // Recalculate counts for chart consistency
-            const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '';
+            const isValid = (val) => val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'null' && val.toLowerCase() !== 'false' && val.trim() !== '';
             const issueCounts = [
                 data.filter(r => isValid(getValueFuzzy(r, 'Bot category'))).length,
                 data.filter(r => isValid(getValueFuzzy(r, 'website issue category'))).length,
@@ -1617,7 +1617,7 @@
 
             data.forEach(r => {
                 const val = getValueFuzzy(r, column);
-                if (val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'false' && val.trim() !== '') {
+                if (val && val.toLowerCase() !== 'na' && val.toLowerCase() !== 'null' && val.toLowerCase() !== 'false' && val.trim() !== '') {
                     counts[val] = (counts[val] || 0) + 1;
                     total++;
                 }
